@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
+// Use environment variable or fallback to localhost
+export const backendService = process.env.REACT_APP_BACKEND_URL || "/api";
+console.log("Backend URL:", backendService); // Debugging
+
 const toolsData = {
   Ansible: "https://upload.wikimedia.org/wikipedia/commons/2/24/Ansible_logo.svg",
   Docker: "https://www.docker.com/wp-content/uploads/2022/03/vertical-logo-monochromatic.png",
   Git: "https://git-scm.com/images/logos/downloads/Git-Icon-1788C.png",
   Jenkins: "https://www.jenkins.io/images/logos/jenkins/jenkins.svg",
   Prometheus: "https://upload.wikimedia.org/wikipedia/commons/3/38/Prometheus_software_logo.svg",
-  Visual_studio : "https://upload.wikimedia.org/wikipedia/commons/2/2c/Visual_Studio_Icon_2022.svg",
+  Visual_studio: "https://upload.wikimedia.org/wikipedia/commons/2/2c/Visual_Studio_Icon_2022.svg",
 };
 
 function App() {
@@ -20,7 +24,7 @@ function App() {
 
   const fetchTools = () => {
     axios
-      .get("http://localhost:8080/tools")
+      .get(`${backendService}/tools`)
       .then((response) => {
         const toolsArray = Object.entries(response.data).map(([name, votes]) => ({
           name,
@@ -36,7 +40,7 @@ function App() {
 
   const handleVote = (toolName) => {
     axios
-      .post(`http://localhost:8080/vote/${toolName}`)
+      .post(`${backendService}/vote/${toolName}`)  // Corrected URL
       .then(() => {
         setTools((prevTools) =>
           prevTools.map((tool) =>
