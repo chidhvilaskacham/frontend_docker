@@ -17,12 +17,14 @@ const toolsData = {
 function App() {
   const [tools, setTools] = useState([]);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchTools();
   }, []);
 
   const fetchTools = () => {
+    setLoading(true);
     axios
       .get(`${backendService}/tools`)
       .then((response) => {
@@ -31,22 +33,27 @@ function App() {
           votes,
         }));
         setTools(toolsArray);
+        setError(""); // Clear any previous errors
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
         setError("Failed to fetch tools. Please check the backend.");
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
   const handleVote = (toolName) => {
     axios
-      .post(`${backendService}/vote/${toolName}`)  // Corrected URL
+      .post(`${backendService}/vote/${toolName}`)
       .then(() => {
         setTools((prevTools) =>
           prevTools.map((tool) =>
             tool.name === toolName ? { ...tool, votes: tool.votes + 1 } : tool
           )
         );
+        setError(""); // Clear any previous errors
       })
       .catch((error) => {
         console.error("Error voting:", error);
@@ -60,7 +67,9 @@ function App() {
 
       {error && <p style={styles.error}>{error}</p>}
 
-      {tools.length > 0 ? (
+      {loading ? (
+        <p>Loading...</p>
+      ) : tools.length > 0 ? (
         <div style={styles.grid}>
           {tools.map((tool) => (
             <div key={tool.name} style={styles.card}>
@@ -102,7 +111,7 @@ const styles = {
   },
   grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(3, minmax(200px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
     gap: "20px",
     justifyContent: "center",
     padding: "20px",
@@ -114,6 +123,9 @@ const styles = {
     boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
     textAlign: "center",
     transition: "transform 0.2s",
+    ":hover": {
+      transform: "scale(1.05)",
+    },
   },
   image: {
     width: "80px",
@@ -134,6 +146,9 @@ const styles = {
     borderRadius: "5px",
     cursor: "pointer",
     transition: "0.3s",
+    ":hover": {
+      backgroundColor: "#0056b3",
+    },
   },
 };
 

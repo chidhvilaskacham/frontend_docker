@@ -1,25 +1,23 @@
-# Use a Node.js image to build the frontend
+# Stage 1: Build the React app
 FROM node:18 AS builder
-
-# Set working directory inside container
 WORKDIR /app
-
-# Copy package.json and package-lock.json first to leverage caching
 COPY package.json package-lock.json ./
-
-# Install dependencies
-RUN npm install && ls -l node_modules/.bin
-# Copy the entire project
+RUN npm ci
 COPY . .
-
-# Build the React app
 RUN npm run build
 
-# Use a minimal Nginx image to serve the frontend
+# Stage 2: Serve the React app using NGINX
 FROM nginx:alpine
 
-# Copy built files to Nginx's web server directory
+# Copy built files from the builder stage
 COPY --from=builder /app/build /usr/share/nginx/html
+
+# Copy custom NGINX configuration
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY default.conf /etc/nginx/conf.d/default.conf
+
+# Set permissions for the copied files
+RUN chmod -R 755 /usr/share/nginx/html
 
 # Expose port 80 for HTTP traffic
 EXPOSE 80
