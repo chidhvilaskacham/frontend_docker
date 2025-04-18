@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 // Use environment variable or fallback to localhost
-export const backendService = process.env.REACT_APP_BACKEND_URL || "/api";
+export const backendService = `${process.env.REACT_APP_BACKEND_URL}` || "/api";
 console.log("Backend URL:", backendService); // Debugging
 
 const toolsData = {
